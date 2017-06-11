@@ -1,0 +1,400 @@
+A Study of an Individual's Daily Activity Pattern
+========================================================
+
+```{r, echo=FALSE}
+options(warn=-1)
+```
+
+<h2>ABSTRACT</h2>
+This work addresses the peer-assessed assignment number 1 for lecture "Reproducible Research" 
+(Data Science Specialization, John Hopkins University).
+
+<h2>Loading and preprocessing the data</h2>
+
+First, I install and load the packages data.table, scales and ggplot2 for aggregation and visualization
+of the data. Furthermore I read the data into the data.table activity make the dates to data type date.
+
+```{r}
+# Reproducible Research: Peer Assessment 1
+
+## Load packages
+##install.packages("data.table")
+library(data.table)
+##install.packages("scales")
+library(scales)
+##install.packages("ggplot2")
+library(ggplot2)
+
+## Loading and preprocessing the data
+activity <- data.table( read.csv("C:/Users/Martin_Admin/Desktop/RepData_PA1/R_Project_PA1/activity.csv") )
+activity$date <- as.Date(activity$date)
+```
+
+<h2>What is mean total number of steps taken per day?</h2>
+
+I plot a histogram of the total number of steps taken per day. 
+
+```{r}
+## What is mean total number of steps taken per day?
+stepsPerDay <- activity[, sum(steps), by="date"]
+names(stepsPerDay)[2]<-paste("steps")
+
+ggplot(data=stepsPerDay, aes(x=stepsPerDay$date, y=stepsPerDay$steps)) +
+  theme_bw() + xlab("Date") + ylab("Steps") + geom_histogram(stat="identity")
+```
+
+Mean steps taken per day:
+```{r}
+mean(stepsPerDay$steps, na.rm=TRUE)
+```
+
+Median steps taken per day:
+```{r}
+median(stepsPerDay$steps, na.rm=TRUE)
+```
+
+<h2>What is the average daily activity pattern?</h2>
+
+I define a datatable called intervalsSteps that will be filled with all intervals and their according total steps 
+and number of occurences in the data. This will allow me to finally compute the average as total steps 
+divided by days.
+
+```{r}
+## What is the average daily activity pattern?
+intervalsSteps <- data.table(max1=numeric(0), max2=numeric(0), max3=numeric(0))
+intervalsSteps <- rbind( intervalsSteps, list(-1, -1, -1) )
+
+names(intervalsSteps)[1]<-paste("interval")
+names(intervalsSteps)[2]<-paste("totalSteps")
+names(intervalsSteps)[3]<-paste("intervalCount")
+```
+
+Now I fill the intervalsSteps datatable and in the end remove the helper line again.
+
+```{r}
+
+for(i in 1:nrow(activity) ){
+  
+  intervalInDtYet <- FALSE
+  
+  for(j in 1:nrow(intervalsSteps)){
+    
+    if( activity$interval[i] == intervalsSteps$interval[j] & !intervalInDtYet & !is.na(activity$steps[i]) ){
+      
+      intervalInDtYet <- TRUE ## interval is in DT yet
+      
+      intervalsSteps$totalSteps[j] <- intervalsSteps$totalSteps[j] + activity$steps[i]
+      intervalsSteps$intervalCount[j] <- intervalsSteps$intervalCount[j] + 1
+      
+    }
+    
+  }
+  
+  if( !intervalInDtYet & !is.na(activity$steps[i]) ){ ## interval is not in DT yet
+   
+    additionalInterval = list( activity$interval[i], activity$steps[i], 1 )
+    intervalsSteps <- rbind(intervalsSteps, additionalInterval)
+    
+  }
+  
+}
+
+intervalsSteps2 <- intervalsSteps[intervalsSteps$interval>=0] ## remove helper line from the beginning
+```
+
+Now I compute all the averages and add them as an additional column to the 
+intervalsSteps datatable. After that I draw a time series plot over the 
+5-minute intervals (x-axis) and the average number of steps taken (averaged across 
+all days; y-axis).
+
+```{r}
+
+intervalsAvgs <- data.table(max1=numeric(0))
+names(intervalsAvgs)[1]<-paste("avgSteps")
+
+for(i in 1:nrow(intervalsSteps2)){ 
+  additionalAvg <- intervalsSteps2$totalSteps[i] / intervalsSteps2$intervalCount[i]
+  intervalsAvgs <- rbind(intervalsAvgs, additionalAvg)
+}
+
+intervalsSteps2 <- cbind(intervalsSteps2, intervalsAvgs)
+
+ggplot(data=intervalsSteps2, aes( x=intervalsSteps2$interval, y=intervalsSteps2$avgSteps) ) + 
+  geom_line(stat="identity") + xlab("Daily 5-Minute Interval") + ylab("Avg. Steps")
+```
+
+I compute the interval with (on average) the most steps:
+
+```{r}
+
+maxAvgStepsInterval_i <- 1
+for( i in 2:nrow(intervalsSteps2) ){
+  
+  if( intervalsSteps2$avgSteps[i] > intervalsSteps2$avgSteps[maxAvgStepsInterval_i] ){
+    maxAvgStepsInterval_i <- i
+  }
+  
+}
+maxAvgStepsInterval <- intervalsSteps2$interval[maxAvgStepsInterval_i]
+maxAvgStepsAmount <- intervalsSteps2$avgSteps[maxAvgStepsInterval_i]
+```
+
+The interval with on average most steps is:
+```{r}
+maxAvgStepsInterval
+```
+
+On average, the individual performed the following number of steps:
+```{r}
+mmaxAvgStepsAmount
+```
+
+<h2>Inputing missing values</h2>
+
+I compute total number of missing values:
+```{r}
+countMissingValues <- 0
+
+for(i in 1:nrow(activity)){
+  if(is.na(activity$steps[i])){
+    countMissingValues <- countMissingValues+1
+  }
+}
+```
+
+Subtask 1: Total number of missing values in the dataset:
+
+```{r}
+countMissingValues
+```
+
+Subtask 2 and 3: For filling in missing values, I compute the means for the respective 5-minute intervals.
+Furthermore, I create a new dataset with the missing data filled in. This is stored under activityFilled.csv
+
+```{r}
+activityFilled <- activity
+
+for(i in 1:nrow(activityFilled)){
+  
+  if(is.na(activityFilled$steps[i])){
+    
+    for(j in 1:nrow(intervalsSteps2)){
+      
+      if(activityFilled$interval[i]==intervalsSteps2$interval[j]){
+        
+        activityFilled$steps[i] <- intervalsSteps2$avgSteps[j]
+        
+      }
+      
+    }
+    
+  }
+  
+}
+```
+
+Storing the new dataset:
+
+```{r}
+write.csv(activityFilled, "activityFilled.csv", row.names=FALSE)
+```
+
+Subtask 4: I compute the mean and median of total number of steps taken per day. Also I draw a histogram of the total number of steps taken each day.
+
+```{r}
+stepsPerDayFilled <- activityFilled[, sum(steps), by="date"]
+names(stepsPerDayFilled)[2]<-paste("steps")
+```
+
+The mean total number of steps taken per day is:
+
+```{r}
+mean(stepsPerDayFilled$steps, na.rm=TRUE)
+```
+
+The median total number of steps taken per day is:
+
+```{r}
+median(stepsPerDayFilled$steps, na.rm=TRUE)
+```
+
+Histogram indicating total number of steps taken per day:
+
+```{r}
+ggplot(data=stepsPerDayFilled, aes(x=stepsPerDayFilled$date, y=stepsPerDayFilled$steps)) +
+  theme_bw() + xlab("Date") + ylab("Steps") + geom_histogram(stat="identity")
+
+```
+
+<h5>Interpretation of Mean and Median</h5>
+The mean does not differ, because in the first part NAs have been ignored (as was demanded within the assignment).
+However, the median increased (slightly), because empty rows now contain the average steps and do thus do less
+"weaken" the difference between mean and median. (In fact, the median now is exactly the same as the mean!)
+Finally, the histograms differ, because inputting the mean for missing intervals increases the number of steps
+per day and thus increases the total number of steps per day. Regarding the histogram, a higher total number of
+steps per day "enlarges" the bars in the histogram.
+
+<h2>Are there differences in activity patterns between weekdays and weekends?</h2>
+
+First, I create a new factor variable with the two levels weekday and weekend:
+
+```{r}
+activityFilledDaytype <- activityFilled
+daytype <- data.table(max1=numeric(0))
+names(daytype)[1]<-paste("daytype")
+
+for(i in 1:nrow(activityFilledDaytype)){
+  additionalDaytype <- weekdays(activityFilledDaytype$date[i])
+  if(additionalDaytype=="Samstag" |
+       additionalDaytype=="Saturday" |
+       additionalDaytype=="Sonntag" |
+       additionalDaytype=="Sunday"){
+    additionalDaytype2<-"weekend"
+  }else{
+    additionalDaytype2<-"weekday"
+  }
+  daytype <- rbind(daytype, additionalDaytype2)
+}
+
+activityFilledDaytype <- cbind(activityFilledDaytype, daytype)
+
+```
+
+Now I create a table with the interval (filled with means) for all weekdays:
+
+```{r}
+intervalsStepsFilledWeekday <- data.table(max1=numeric(0), max2=numeric(0), max3=numeric(0))
+intervalsStepsFilledWeekday <- rbind( intervalsStepsFilledWeekday, list(-1, -1, -1) )
+
+names(intervalsStepsFilledWeekday)[1]<-paste("interval")
+names(intervalsStepsFilledWeekday)[2]<-paste("totalSteps")
+names(intervalsStepsFilledWeekday)[3]<-paste("intervalCount")
+
+activityFilledWeekday <- activityFilledDaytype[activityFilledDaytype$daytype=="weekday"]
+
+for(i in 1:nrow(activityFilledWeekday) ){
+  
+  intervalInDtYet <- FALSE
+  
+  for(j in 1:nrow(intervalsStepsFilledWeekday)){
+    
+    if( activityFilledWeekday$interval[i] == intervalsStepsFilledWeekday$interval[j] & 
+          (!intervalInDtYet)) {
+      
+      intervalInDtYet <- TRUE ## interval is in DT yet
+      
+      intervalsStepsFilledWeekday$totalSteps[j] <- intervalsStepsFilledWeekday$totalSteps[j] + activityFilledWeekday$steps[i]
+      intervalsStepsFilledWeekday$intervalCount[j] <- intervalsStepsFilledWeekday$intervalCount[j] + 1
+      
+    }
+    
+  }
+  
+  if(!intervalInDtYet){ ## interval is not in DT yet
+    
+    additionalInterval = list( activityFilledWeekday$interval[i], activityFilledWeekday$steps[i], 1 )
+    intervalsStepsFilledWeekday <- rbind(intervalsStepsFilledWeekday, additionalInterval)
+    
+  }
+  
+}
+
+intervalsStepsFilledWeekday2 <- intervalsStepsFilledWeekday[intervalsStepsFilledWeekday$interval>=0] ## remove helper line from the beginning
+
+intervalsWeekdaysAvgs <- data.table(max1=numeric(0))
+names(intervalsWeekdaysAvgs)[1]<-paste("avgSteps")
+
+for(i in 1:nrow(intervalsStepsFilledWeekday2)){ 
+  additionalAvg <- intervalsStepsFilledWeekday2$totalSteps[i] / intervalsStepsFilledWeekday2$intervalCount[i]
+  intervalsWeekdaysAvgs <- rbind(intervalsWeekdaysAvgs, additionalAvg)
+}
+
+intervalsStepsFilledWeekday2 <- cbind(intervalsStepsFilledWeekday2, intervalsWeekdaysAvgs)
+
+```
+
+Now I create a table with the interval (filled with means) for all weekend-days:
+
+```{r}
+intervalsStepsFilledWeekend <- data.table(max1=numeric(0), max2=numeric(0), max3=numeric(0))
+intervalsStepsFilledWeekend <- rbind( intervalsStepsFilledWeekend, list(-1, -1, -1) )
+
+names(intervalsStepsFilledWeekend)[1]<-paste("interval")
+names(intervalsStepsFilledWeekend)[2]<-paste("totalSteps")
+names(intervalsStepsFilledWeekend)[3]<-paste("intervalCount")
+
+activityFilledWeekend <- activityFilledDaytype[activityFilledDaytype$daytype=="weekend"]
+
+for(i in 1:nrow(activityFilledWeekend) ){
+  
+  intervalInDtYet <- FALSE
+  
+  for(j in 1:nrow(intervalsStepsFilledWeekend)){
+    
+    if( activityFilledWeekend$interval[i] == intervalsStepsFilledWeekend$interval[j] & 
+          (!intervalInDtYet)) {
+      
+      intervalInDtYet <- TRUE ## interval is in DT yet
+      
+      intervalsStepsFilledWeekend$totalSteps[j] <- intervalsStepsFilledWeekend$totalSteps[j] + activityFilledWeekend$steps[i]
+      intervalsStepsFilledWeekend$intervalCount[j] <- intervalsStepsFilledWeekend$intervalCount[j] + 1
+      
+    }
+    
+  }
+  
+  if(!intervalInDtYet){ ## interval is not in DT yet
+    
+    additionalInterval = list( activityFilledWeekend$interval[i], activityFilledWeekend$steps[i], 1 )
+    intervalsStepsFilledWeekend <- rbind(intervalsStepsFilledWeekend, additionalInterval)
+    
+  }
+  
+}
+
+intervalsStepsFilledWeekend2 <- intervalsStepsFilledWeekend[intervalsStepsFilledWeekend$interval>=0] ## remove helper line from the beginning
+
+intervalsWeekendAvgs <- data.table(max1=numeric(0))
+names(intervalsWeekendAvgs)[1]<-paste("avgSteps")
+
+for(i in 1:nrow(intervalsStepsFilledWeekend2)){ 
+  additionalAvg <- intervalsStepsFilledWeekend2$totalSteps[i] / intervalsStepsFilledWeekend2$intervalCount[i]
+  intervalsWeekendAvgs <- rbind(intervalsWeekendAvgs, additionalAvg)
+}
+
+intervalsStepsFilledWeekend2 <- cbind(intervalsStepsFilledWeekend2, intervalsWeekendAvgs)
+
+```
+
+Combine the datasets for weekdays and weekend-days:
+
+```{r}
+## Combine datasets and draw panel plot
+intervalsStepsFilledAll <- rbind(intervalsStepsFilledWeekday2, intervalsStepsFilledWeekend2)
+
+dayDT <- data.table(max1=character())
+names(dayDT)[1]<-paste("daytype")
+
+for(i in 1:nrow(intervalsStepsFilledWeekday2)){ 
+  additionalDay <- "weekday"
+  dayDT <- rbind(dayDT, additionalDay)
+}
+for(i in nrow(intervalsStepsFilledWeekday2)+1:nrow(intervalsStepsFilledWeekend2)){ 
+  additionalDay <- "weekend"
+  dayDT <- rbind(dayDT, additionalDay)
+}
+
+intervalsStepsFilledAll <- cbind(intervalsStepsFilledAll, dayDT)
+```
+
+Plot the intervals (filled with means) for all weekend-days in one panel plot:
+
+```{r}
+ggplot(data=intervalsStepsFilledAll, 
+       aes( x=intervalsStepsFilledAll$interval, y=intervalsStepsFilledAll$avgSteps) ) + 
+  geom_line(stat="identity") + xlab("Weekend 5-Minute Interval") + ylab("Avg. Steps") +
+  facet_grid(daytype ~ .)
+```
+
+Clearly one can notice the differences between the averages on weekdays and weekends. While there appear to be some few peeks 
+during weekdays (morning, lunch, afternoon), it is difficult to recognize a pattern for weekend-days.

@@ -1,0 +1,296 @@
+```{r, echo=FALSE}
+options(warn=-1)
+```
+The Health and Economic Impacts of Storms in the US since 1950
+========================================================
+
+<h2>SYNOPSIS</h2>
+
+The objective of this report is to explore the NOAA Storm Database. 
+A particular focus lies on analyzing (1) the impact of storms on health (i.e.,
+how many fatalities and injuries are associated with what kind of storm) and
+(2) the imapct of storms on the US economy (i.e., how much damage measures in USD
+may be associated with what kind of storm). I analyzed the data from 1950 to Nov 2011.
+
+Please note: 
+This report is part of my assignment for the "Data Specialization / Reproducible Research" 
+lecture offered by John Hopkins University.
+
+The reminder is divided in two main parts. First, in part A I will explain how I processed the data and 
+also give you the respective R code. Second, in part B I will show you the results and together with 
+three charts that illustrate my findings.
+
+
+<h2>PART A. DATA PROCESSING</h2>
+
+<h3>1. Install and load packages</h3>
+
+Step 1 installs and loads the required packages. I use data.table for storing and aggregating data and scales, 
+xtable and ggplot2 for illustrating my findings and displaying some beautiful charts.
+
+```{r}
+##install.packages("data.table")
+library(data.table)
+##install.packages("scales")
+library(scales)
+##install.packages("ggplot2")
+library(ggplot2)
+##install.packages("xtable")
+library(xtable)
+```
+
+<h3>2. Load Data</h3>
+
+Step 2 reads the data. 
+
+```{r}
+data <- read.csv( bzfile("C:/Users/Martin_Admin/Desktop/RepData_PA2/repdata-data-StormData.csv.bz2") )
+```
+
+<h3>3. Preprocess data</h3>
+
+Step 3 creates a vector containg all events. This will be helpful for iterating through the data later.
+
+```{r}
+eventVector <- as.character( unique(data$EVTYPE) )
+```
+
+<h3>4. Task 1: Identification of most harmful events with respect to population health</h3>
+
+Step 4 adresses task 1 of the assignment. It creates a data.table that contains all events and the 
+number of facilities and injuries associated with them.
+
+<h4>4.1 Subset data</h4>
+
+Step 4.1 creates a subset. This reduces the processing time later on.
+
+```{r}
+dataTask1 <- data.table( data[, c("EVTYPE", "FATALITIES", "INJURIES")] )
+```
+
+<h4>4.2 Compute table with health impact</h3>
+
+Step 4.2 creates a new table with one row for each event and then fill the table 
+with the number of facilities and injuries. Finally, it orders the table in descending order.
+
+```{r}
+healthImpact <- data.table(max1=character(0), max2=integer(0), max3=integer(0), max4=integer(0))
+names(healthImpact)[1]<-paste("event")
+names(healthImpact)[2]<-paste("eventCount")
+names(healthImpact)[3]<-paste("fatalities")
+names(healthImpact)[4]<-paste("injuries")
+
+for(i in eventVector){
+  
+  additionalEventList <- list(i, 0, 0, 0)
+  healthImpact <- rbind(healthImpact, additionalEventList)
+  
+}
+## Summ fatalities and injuries for each event
+fatalitiesDT <- dataTask1[, sum(FATALITIES), by=EVTYPE]
+injuriesDT <- dataTask1[, sum(INJURIES), by=EVTYPE]
+
+## Insert sums of fatalities and injuries in healthImpact data table and order data table
+for(i in 1:nrow(healthImpact)){
+  
+  healthImpact$fatalities[i] <- fatalitiesDT$V1[ fatalitiesDT$EVTYPE==healthImpact$event[i] ]
+  healthImpact$injuries[i] <- injuriesDT$V1[ injuriesDT$EVTYPE==healthImpact$event[i] ]
+  
+}
+
+healthImpact <- healthImpact[order(-fatalities, -injuries)]
+```
+
+<h3>5. Task 2: Identification of events with greatest economic consequences</h3>
+
+As mentioned above, step 5 focuses on task 2 of the assignment.
+
+<h4>5.1 Subset data</h4>
+
+Similar to step 4.1, I create a subset called dataTask2 which is specifically tailored to the needs of task 2. 
+
+Furthermore, I also create three tables that will be helpful for the following computations. The table prop 
+is a subset of the data that contains data on the economic property damage. Specifically, it contains the event and 
+the amound of damage. Interestingly, the amound of damage is stored in two columns. The factor is stored in "PROPDMG" and 
+the exponent is stored in "PROPDMGEXP". Accordingly, I create the table crop for the economic damage on crop. 
+This table also stores the event, factor, and exponent.
+
+```{r}
+dataTask2 <- data.table( data[, c("EVTYPE", "PROPDMG", "PROPDMGEXP", "CROPDMG", "CROPDMGEXP")] )
+
+totalDmgDT <- data.table(max1=character(0), max2=numeric(0), max3=numeric(0), max4=numeric(0))
+names(totalDmgDT)[1]<-paste("event")
+names(totalDmgDT)[2]<-paste("property_dmg")
+names(totalDmgDT)[3]<-paste("crop_dmg")
+names(totalDmgDT)[4]<-paste("total_dmg")
+
+prop <- dataTask2[, sum(PROPDMG), by=list(EVTYPE, PROPDMGEXP)]
+names(prop)[1]<-paste("event")
+names(prop)[2]<-paste("exp")
+names(prop)[3]<-paste("damage")
+prop <- prop[damage>0] ## remove rows where prop damage is zero
+
+crop <- dataTask2[, sum(CROPDMG), by=list(EVTYPE, PROPDMGEXP)]
+names(crop)[1]<-paste("event")
+names(crop)[2]<-paste("exp")
+names(crop)[3]<-paste("damage")
+crop <- crop[damage>0] ## remove rows where crop damage is zero
+```
+
+<h4>5.2 Clean subsets</h4>
+
+Step 5.2 transforms the exponent columns of the tables prop and crop, because the given data is not 
+tidy yet. In particular, I first assign the exponent zero to the characters space, ?, - and +. Second, 
+I assign the exponent 2 to H and h, the exponent 3 to k and K, and the exponent 6 to M and m. As the column 
+is automatically read as a factor that does not contain the element 9, I cannot assign the exponent 9 in this step. 
+Hence, I us a rather quick and dirty approach for this: I simply use an if-statement later on to filer all Bs.
+
+
+```{r}
+for(i in 1:nrow(prop)){
+  
+  if( as.character(prop$exp[i])=="" | as.character(prop$exp[i])=="?" |as.character(prop$exp[i])=="-" | as.character(prop$exp[i])=="+" ){
+    prop$exp[i] <- 0
+  }else if( as.character(prop$exp[i])=="H" |as.character(prop$exp[i])=="h" ){ ## hecta
+    prop$exp[i] <- 2
+  }else if( as.character(prop$exp[i])=="K" |as.character(prop$exp[i])=="k" ){ ## kilo
+    prop$exp[i] <- 3
+  }else if( as.character(prop$exp[i])=="M" |as.character(prop$exp[i])=="m" ){ ## mil
+    prop$exp[i] <- 6
+  }else if( as.character(prop$exp[i])=="B" |as.character(prop$exp[i])=="b" ){ ## bil --> not in factor
+    prop$exp[i] <- "B"
+  }
+  
+}
+
+for(i in 1:nrow(crop)){
+  
+  if( as.character(crop$exp[i])=="" | as.character(crop$exp[i])=="?" |as.character(crop$exp[i])=="-" | as.character(crop$exp[i])=="+" ){
+    crop$exp[i] <- 0
+  }else if( as.character(crop$exp[i])=="H" |as.character(crop$exp[i])=="h" ){
+    crop$exp[i] <- 2
+  }else if( as.character(crop$exp[i])=="K" |as.character(crop$exp[i])=="k" ){
+    crop$exp[i] <- 3
+  }else if( as.character(crop$exp[i])=="M" |as.character(crop$exp[i])=="m" ){
+    crop$exp[i] <- 6
+  }else if( as.character(crop$exp[i])=="B" |as.character(crop$exp[i])=="b" ){
+    crop$exp[i] <- "B"
+  }
+  
+}
+```
+
+<h4>5.3 Compute damage per event</h4>
+
+Step 5.3 computes fills the table totalDmgDT. This table has one row for each event. 
+This row shows the event name, the crop damage, the property damage, and the total economic damage.
+
+```{r}
+for(i in 1:length(eventVector)){
+  
+  x <- as.character( eventVector[i] )
+  
+  prop_damage <- as.numeric(0) ## this shows damage in thousands!
+  crop_damage <- as.numeric(0) ## this shows damage in thousands!
+  
+  for(j in 1:nrow(prop)){
+    
+      if(x == as.character(prop$event[j]) & as.character(prop$exp[j])=="B"){
+        
+        prop_damage <- prop_damage + prop$damage[j] * 1e+09
+        
+      }else if(x == as.character(prop$event[j]) ){
+        
+        prop_damage <- prop_damage + prop$damage[j] * 10^as.numeric( prop$exp[j] )
+        
+      }
+     
+  }
+  
+  for(j in 1:nrow(crop)){
+    
+    if(x == as.character(crop$event[j]) & as.character(crop$exp[j])=="B"){
+      
+        crop_damage <- crop_damage + crop$damage[j] * 1e+09
+      
+    }else if(x == as.character(crop$event[j]) ){
+      
+        crop_damage <- crop_damage + crop$damage[j] * 10^as.numeric( crop$exp[j] )
+      
+    }
+    
+  }
+  
+  total_damage = prop_damage + crop_damage
+  
+  additionalEventList <- list(x, prop_damage, crop_damage, total_damage )
+  totalDmgDT <- rbind(totalDmgDT, additionalEventList)
+  
+}
+```
+
+<h4>5.3 Order events according to their damage</h4>
+
+Step 5.3 orders the totalDmgDt and copies the results to the table economicImpact.
+
+```{r}
+economicImpact <- totalDmgDT[order(-total_dmg, -property_dmg, -crop_dmg)]
+```
+
+<h2>PART B. RESULTS</h2>
+
+Part B now explains the results and shows the according figures.
+
+<h3>6. Plot fatalities</h3>
+
+Step 6 shows the number of fatalities associated with certain types of events. 
+Due to the number of events (985), I limited it to the 10 events with associated with most fatalities. 
+Interestingly, most fatalities are associated with tornados (5633) followed by excessive heats (1903).
+
+```{r, results='asis' }
+fatalitiesPlot <- healthImpact[1:10]
+
+print( xtable(fatalitiesPlot), type="html"  )
+```
+
+```{r}
+ggplot(data=fatalitiesPlot, aes(x=fatalitiesPlot$event, y=fatalitiesPlot$fatalities, fill="red") ) +
+  theme_bw() + xlab("Event") + ylab("Fatalities") + geom_histogram(stat="identity") +
+  theme(axis.text.x=element_text(angle = 90, hjust = 1), legend.position = "none") +
+  scale_y_continuous(breaks=c(0, 1000, 2000, 3000, 4000, 5000, 6000), limits=c(0,6000))
+```
+
+<h3>7. Plot injuries</h3>
+
+Step 7 shows the number of injuries associated with certain types of events. 
+Due to the number of events (985), I limited it to the 10 events with associated with most injuries.
+Again, most injuries are associated with tornados (91346). However, the followers are rather similar. 
+That is, there are three events with injuries between 6500 and 7000.
+
+```{r}
+injuriesPlot <- healthImpact[1:10]
+
+ggplot(data=injuriesPlot, aes(x=injuriesPlot$event, y=injuriesPlot$injuries, fill="blue") ) +
+  theme_bw() + xlab("Event") + ylab("Injuries") + geom_histogram(stat="identity") +
+  theme(axis.text.x=element_text(angle = 90, hjust = 1), legend.position = "none") +
+  scale_y_continuous(breaks=c(0, 5000, 10000, 25000, 50000, 75000, 90000, 100000), limits=c(0,100000))
+```
+
+<h3>8. Plot economic damage</h3>
+
+Finally, step 8 plots the economic damage. Again, tornadoes are leading. However, two types of floods are rather close and, 
+if considered together, would have resulted in higher economic damage than tornados alone.
+
+```{r, results='asis'}
+damagePlot <- economicImpact[1:10]
+
+print( xtable(damagePlot), type="html"  )
+
+```
+
+```{r}
+ggplot(data=damagePlot, aes(x=damagePlot$event, y=damagePlot$total_dmg, fill="green") ) +
+  theme_bw() + xlab("Event") + ylab("Economic Damage") + geom_histogram(stat="identity") +
+  theme(axis.text.x=element_text(angle = 90, hjust = 1), legend.position = "none") +
+  scale_y_continuous()
+```

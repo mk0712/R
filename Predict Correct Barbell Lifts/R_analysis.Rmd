@@ -1,0 +1,197 @@
+---
+title: "Machine Learning to Predict Correct and Incorrect Barbell Lifts"
+output: html_document
+---
+
+```{r, echo=FALSE}
+options(warn=-1)
+```
+
+========================================================
+
+<h2>SYNOPSIS</h2>
+
+The objective of this report is to predict correctness (and respectively incorrectness) of barbell lifts.
+
+Please note: 
+This report is part of my assignment for the "Data Specialization / Practical Machine Learning" lecture offered by John Hopkins University. Therefore this report is kept short. That is, it contains approx. 800 words (without results from R code chunks) and 2 figures.
+
+========================================================
+
+<h2>PART A. DATA PROCESSING</h2>
+
+<h3>1 Install and load packages</h3>
+
+Step 1 installs and loads the required packages.
+
+```{r}
+##install.packages("caret")
+library(caret)
+```
+
+<h3>2 Load Data</h3>
+
+This step loads the training dataset ("train") and the testing dataset ("test").
+
+```{r}
+train <- read.csv("R:/Online Courses/John Hopkins University - Data Science (Spring 2014)/Data Science Specialization/08_Practical_Machine_Learning/Course_Project/pml-training.csv")
+test <- read.csv("R:/Online Courses/John Hopkins University - Data Science (Spring 2014)/Data Science Specialization/08_Practical_Machine_Learning/Course_Project/pml-testing.csv")
+```
+
+<h2>PART B. ...</h2>
+
+<h3>3 Create Random Forest Predictor</h3>
+
+As described in the lecture notes and discussed widely within the respective forums, the rainforest method seems to be the most promising method and, thus, is used first in order to receive a score against which further models can be compared.
+
+My rainforest model predicts the variable "classe" which is a categorical variable (i.e., a factor variable) with five potential values: A, B, C, D, and E.
+
+```{r}
+levels(train$classe)
+```
+
+To predict "classe", I start by using all variables of the given train-dataset ecxcept those variables which only become "null" in the correspondin test-dataset. This makes sense, because variables that are constant (such as always "null" or "na") are not suited to predict anything.
+
+```{r}
+# Create Model Random Forest
+modRf <- train(classe ~ 
+                  roll_belt +
+                  pitch_belt +
+                  yaw_belt +
+                  total_accel_belt +
+                  gyros_belt_x +
+                  gyros_belt_y +
+                  gyros_belt_z +
+                  accel_belt_x +
+                  accel_belt_y +
+                  accel_belt_z +
+                  magnet_belt_x +
+                  magnet_belt_y +
+                  magnet_belt_z +
+                  roll_arm +
+                  pitch_arm +
+                  yaw_arm +
+                  total_accel_arm +
+                  gyros_arm_x +
+                  gyros_arm_y +
+                  gyros_arm_z + 
+                  accel_arm_x +
+                  accel_arm_y +
+                  accel_arm_z +
+                  magnet_arm_x +
+                  magnet_arm_y +
+                  magnet_arm_z +
+                  roll_dumbbell + 
+                  pitch_dumbbell +
+                  yaw_dumbbell, 
+                method="rf", data=train)
+```
+
+<h3>4 Detailed Information about the Created Model</h3>
+
+Since the computation of my Rainforest model took some time, I want to check the time I required and then I output the results:
+
+```{r}
+modRf$times
+modRf
+```
+
+The following uses the computed model on the training data (once again) and outputs detailed data and plots the predictions against their actual value. 
+
+```{r}
+predCheck <- predict(modRf, train)
+table(predCheck, train$classe) ## Result: 100% correct prediction!
+qplot(predict(modRf, train), classe, data=train)
+```
+
+<h2>PART C. Prediction of Values from test dataset</h2>
+
+<h3>5 Prediction of test$classe</h3>
+
+As the output from the previous chunck indicates, all values are predicted correctly.
+
+Consequently, I decided to adapt my computed rainforest model to the test-dataset. The following chunk creates the output which I also entered for this assignment as submission.
+
+```{r}
+pred <- predict(modRf, test)
+pred 
+```
+
+<h2>PART D. Additionally Required Tasks for Assigment</h2>
+
+<h3>6 Cross Validation</h3>
+
+For completeness I test the same approach with cross-validation. Therefore, the training set is splitted into two subsets: trainSubset and testSubset. Due to the very large number of elements in the "real" training dataset (19622 observations of 160 variables), I use 90% for for trainSubset and 10% for testSubset.
+
+```{r}
+set.seed(10)
+dataPartition = createDataPartition(train$classe, p=0.9, list=FALSE)
+trainSubset = train[dataPartition,]
+testSubset = train[-dataPartition,]
+```
+
+As previously, I now create the rainforest model:
+
+```{r}
+# Create Model of Subset with Random Forest
+modRfSubset <- train(classe ~ 
+                  roll_belt +
+                  pitch_belt +
+                  yaw_belt +
+                  total_accel_belt +
+                  gyros_belt_x +
+                  gyros_belt_y +
+                  gyros_belt_z +
+                  accel_belt_x +
+                  accel_belt_y +
+                  accel_belt_z +
+                  magnet_belt_x +
+                  magnet_belt_y +
+                  magnet_belt_z +
+                  roll_arm +
+                  pitch_arm +
+                  yaw_arm +
+                  total_accel_arm +
+                  gyros_arm_x +
+                  gyros_arm_y +
+                  gyros_arm_z + 
+                  accel_arm_x +
+                  accel_arm_y +
+                  accel_arm_z +
+                  magnet_arm_x +
+                  magnet_arm_y +
+                  magnet_arm_z +
+                  roll_dumbbell + 
+                  pitch_dumbbell +
+                  yaw_dumbbell, 
+                method="rf", data=trainSubset)
+## Show information about the subset model:
+modRfSubset$times
+modRfSubset
+```
+
+And apply the model to the training subset:
+
+```{r}
+predCheckSubset <- predict(modRfSubset, testSubset)
+table(predCheckSubset, testSubset$classe) 
+accuracyRfSubset_i = (testSubset$classe == predCheckSubset)
+accuracyRfSubset = length(accuracyRfSubset_i[accuracyRfSubset_i==TRUE]) / length(accuracyRfSubset_i)
+accuracyRfSubset
+```
+
+<h3>7 Estimation of Out of Sample Error</h3>
+
+In this step I estimate the out of sample error of modRf. I assume that the sample error of modRFSubset is approximately the sample error of modRf, because modRFSubset contains 90% of the elements of modRf and I cannot compute the out of sample error for modRf exactly.
+
+```{r}
+oos_error <- 1-accuracyRfSubset
+oos_error
+```
+
+The estimated out of sample error is approximately 1.429%. 
+
+This high number makes sense. All (20 of 20) predictions based on modRF have been correct when submitting them to the homepage. These predictions have been shown in this report above and are stored in the form of a character vector in "pred".
+
+========================================================
+(End of report)

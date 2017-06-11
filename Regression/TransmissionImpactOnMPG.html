@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=9" >
+
+<title>The Impact of Transmission Type on Miles Per Gallon and Identification of Moderators</title>
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 12px;
+   margin: 8px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 { 
+   font-size:2.2em; 
+}
+
+h2 { 
+   font-size:1.8em; 
+}
+
+h3 { 
+   font-size:1.4em; 
+}
+
+h4 { 
+   font-size:1.0em; 
+}
+
+h5 { 
+   font-size:0.9em; 
+}
+
+h6 { 
+   font-size:0.8em; 
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre {	
+   margin-top: 0;
+   max-width: 95%;
+   border: 1px solid #ccc;
+   white-space: pre-wrap;
+}
+
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code.r, code.cpp {
+   background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * { 
+      background: transparent !important; 
+      color: black !important; 
+      filter:none !important; 
+      -ms-filter: none !important; 
+   }
+
+   body { 
+      font-size:12pt; 
+      max-width:100%; 
+   }
+       
+   a, a:visited { 
+      text-decoration: underline; 
+   }
+
+   hr { 
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote { 
+      padding-right: 1em; 
+      page-break-inside: avoid; 
+   }
+
+   tr, img { 
+      page-break-inside: avoid; 
+   }
+
+   img { 
+      max-width: 100% !important; 
+   }
+
+   @page :left { 
+      margin: 15mm 20mm 15mm 10mm; 
+   }
+     
+   @page :right { 
+      margin: 15mm 10mm 15mm 20mm; 
+   }
+
+   p, h2, h3 { 
+      orphans: 3; widows: 3; 
+   }
+
+   h2, h3 { 
+      page-break-after: avoid; 
+   }
+}
+
+</style>
+
+<!-- Styles for R syntax highlighter -->
+<style type="text/css">
+   pre .operator,
+   pre .paren {
+     color: rgb(104, 118, 135)
+   }
+
+   pre .literal {
+     color: rgb(88, 72, 246)
+   }
+
+   pre .number {
+     color: rgb(0, 0, 205);
+   }
+
+   pre .comment {
+     color: rgb(76, 136, 107);
+   }
+
+   pre .keyword {
+     color: rgb(0, 0, 255);
+   }
+
+   pre .identifier {
+     color: rgb(0, 0, 0);
+   }
+
+   pre .string {
+     color: rgb(3, 106, 7);
+   }
+</style>
+
+<!-- R syntax highlighter -->
+<script type="text/javascript">
+var hljs=new function(){function m(p){return p.replace(/&/gm,"&amp;").replace(/</gm,"&lt;")}function f(r,q,p){return RegExp(q,"m"+(r.cI?"i":"")+(p?"g":""))}function b(r){for(var p=0;p<r.childNodes.length;p++){var q=r.childNodes[p];if(q.nodeName=="CODE"){return q}if(!(q.nodeType==3&&q.nodeValue.match(/\s+/))){break}}}function h(t,s){var p="";for(var r=0;r<t.childNodes.length;r++){if(t.childNodes[r].nodeType==3){var q=t.childNodes[r].nodeValue;if(s){q=q.replace(/\n/g,"")}p+=q}else{if(t.childNodes[r].nodeName=="BR"){p+="\n"}else{p+=h(t.childNodes[r])}}}if(/MSIE [678]/.test(navigator.userAgent)){p=p.replace(/\r/g,"\n")}return p}function a(s){var r=s.className.split(/\s+/);r=r.concat(s.parentNode.className.split(/\s+/));for(var q=0;q<r.length;q++){var p=r[q].replace(/^language-/,"");if(e[p]){return p}}}function c(q){var p=[];(function(s,t){for(var r=0;r<s.childNodes.length;r++){if(s.childNodes[r].nodeType==3){t+=s.childNodes[r].nodeValue.length}else{if(s.childNodes[r].nodeName=="BR"){t+=1}else{if(s.childNodes[r].nodeType==1){p.push({event:"start",offset:t,node:s.childNodes[r]});t=arguments.callee(s.childNodes[r],t);p.push({event:"stop",offset:t,node:s.childNodes[r]})}}}}return t})(q,0);return p}function k(y,w,x){var q=0;var z="";var s=[];function u(){if(y.length&&w.length){if(y[0].offset!=w[0].offset){return(y[0].offset<w[0].offset)?y:w}else{return w[0].event=="start"?y:w}}else{return y.length?y:w}}function t(D){var A="<"+D.nodeName.toLowerCase();for(var B=0;B<D.attributes.length;B++){var C=D.attributes[B];A+=" "+C.nodeName.toLowerCase();if(C.value!==undefined&&C.value!==false&&C.value!==null){A+='="'+m(C.value)+'"'}}return A+">"}while(y.length||w.length){var v=u().splice(0,1)[0];z+=m(x.substr(q,v.offset-q));q=v.offset;if(v.event=="start"){z+=t(v.node);s.push(v.node)}else{if(v.event=="stop"){var p,r=s.length;do{r--;p=s[r];z+=("</"+p.nodeName.toLowerCase()+">")}while(p!=v.node);s.splice(r,1);while(r<s.length){z+=t(s[r]);r++}}}}return z+m(x.substr(q))}function j(){function q(x,y,v){if(x.compiled){return}var u;var s=[];if(x.k){x.lR=f(y,x.l||hljs.IR,true);for(var w in x.k){if(!x.k.hasOwnProperty(w)){continue}if(x.k[w] instanceof Object){u=x.k[w]}else{u=x.k;w="keyword"}for(var r in u){if(!u.hasOwnProperty(r)){continue}x.k[r]=[w,u[r]];s.push(r)}}}if(!v){if(x.bWK){x.b="\\b("+s.join("|")+")\\s"}x.bR=f(y,x.b?x.b:"\\B|\\b");if(!x.e&&!x.eW){x.e="\\B|\\b"}if(x.e){x.eR=f(y,x.e)}}if(x.i){x.iR=f(y,x.i)}if(x.r===undefined){x.r=1}if(!x.c){x.c=[]}x.compiled=true;for(var t=0;t<x.c.length;t++){if(x.c[t]=="self"){x.c[t]=x}q(x.c[t],y,false)}if(x.starts){q(x.starts,y,false)}}for(var p in e){if(!e.hasOwnProperty(p)){continue}q(e[p].dM,e[p],true)}}function d(B,C){if(!j.called){j();j.called=true}function q(r,M){for(var L=0;L<M.c.length;L++){if((M.c[L].bR.exec(r)||[null])[0]==r){return M.c[L]}}}function v(L,r){if(D[L].e&&D[L].eR.test(r)){return 1}if(D[L].eW){var M=v(L-1,r);return M?M+1:0}return 0}function w(r,L){return L.i&&L.iR.test(r)}function K(N,O){var M=[];for(var L=0;L<N.c.length;L++){M.push(N.c[L].b)}var r=D.length-1;do{if(D[r].e){M.push(D[r].e)}r--}while(D[r+1].eW);if(N.i){M.push(N.i)}return f(O,M.join("|"),true)}function p(M,L){var N=D[D.length-1];if(!N.t){N.t=K(N,E)}N.t.lastIndex=L;var r=N.t.exec(M);return r?[M.substr(L,r.index-L),r[0],false]:[M.substr(L),"",true]}function z(N,r){var L=E.cI?r[0].toLowerCase():r[0];var M=N.k[L];if(M&&M instanceof Array){return M}return false}function F(L,P){L=m(L);if(!P.k){return L}var r="";var O=0;P.lR.lastIndex=0;var M=P.lR.exec(L);while(M){r+=L.substr(O,M.index-O);var N=z(P,M);if(N){x+=N[1];r+='<span class="'+N[0]+'">'+M[0]+"</span>"}else{r+=M[0]}O=P.lR.lastIndex;M=P.lR.exec(L)}return r+L.substr(O,L.length-O)}function J(L,M){if(M.sL&&e[M.sL]){var r=d(M.sL,L);x+=r.keyword_count;return r.value}else{return F(L,M)}}function I(M,r){var L=M.cN?'<span class="'+M.cN+'">':"";if(M.rB){y+=L;M.buffer=""}else{if(M.eB){y+=m(r)+L;M.buffer=""}else{y+=L;M.buffer=r}}D.push(M);A+=M.r}function G(N,M,Q){var R=D[D.length-1];if(Q){y+=J(R.buffer+N,R);return false}var P=q(M,R);if(P){y+=J(R.buffer+N,R);I(P,M);return P.rB}var L=v(D.length-1,M);if(L){var O=R.cN?"</span>":"";if(R.rE){y+=J(R.buffer+N,R)+O}else{if(R.eE){y+=J(R.buffer+N,R)+O+m(M)}else{y+=J(R.buffer+N+M,R)+O}}while(L>1){O=D[D.length-2].cN?"</span>":"";y+=O;L--;D.length--}var r=D[D.length-1];D.length--;D[D.length-1].buffer="";if(r.starts){I(r.starts,"")}return R.rE}if(w(M,R)){throw"Illegal"}}var E=e[B];var D=[E.dM];var A=0;var x=0;var y="";try{var s,u=0;E.dM.buffer="";do{s=p(C,u);var t=G(s[0],s[1],s[2]);u+=s[0].length;if(!t){u+=s[1].length}}while(!s[2]);if(D.length>1){throw"Illegal"}return{r:A,keyword_count:x,value:y}}catch(H){if(H=="Illegal"){return{r:0,keyword_count:0,value:m(C)}}else{throw H}}}function g(t){var p={keyword_count:0,r:0,value:m(t)};var r=p;for(var q in e){if(!e.hasOwnProperty(q)){continue}var s=d(q,t);s.language=q;if(s.keyword_count+s.r>r.keyword_count+r.r){r=s}if(s.keyword_count+s.r>p.keyword_count+p.r){r=p;p=s}}if(r.language){p.second_best=r}return p}function i(r,q,p){if(q){r=r.replace(/^((<[^>]+>|\t)+)/gm,function(t,w,v,u){return w.replace(/\t/g,q)})}if(p){r=r.replace(/\n/g,"<br>")}return r}function n(t,w,r){var x=h(t,r);var v=a(t);var y,s;if(v){y=d(v,x)}else{return}var q=c(t);if(q.length){s=document.createElement("pre");s.innerHTML=y.value;y.value=k(q,c(s),x)}y.value=i(y.value,w,r);var u=t.className;if(!u.match("(\\s|^)(language-)?"+v+"(\\s|$)")){u=u?(u+" "+v):v}if(/MSIE [678]/.test(navigator.userAgent)&&t.tagName=="CODE"&&t.parentNode.tagName=="PRE"){s=t.parentNode;var p=document.createElement("div");p.innerHTML="<pre><code>"+y.value+"</code></pre>";t=p.firstChild.firstChild;p.firstChild.cN=s.cN;s.parentNode.replaceChild(p.firstChild,s)}else{t.innerHTML=y.value}t.className=u;t.result={language:v,kw:y.keyword_count,re:y.r};if(y.second_best){t.second_best={language:y.second_best.language,kw:y.second_best.keyword_count,re:y.second_best.r}}}function o(){if(o.called){return}o.called=true;var r=document.getElementsByTagName("pre");for(var p=0;p<r.length;p++){var q=b(r[p]);if(q){n(q,hljs.tabReplace)}}}function l(){if(window.addEventListener){window.addEventListener("DOMContentLoaded",o,false);window.addEventListener("load",o,false)}else{if(window.attachEvent){window.attachEvent("onload",o)}else{window.onload=o}}}var e={};this.LANGUAGES=e;this.highlight=d;this.highlightAuto=g;this.fixMarkup=i;this.highlightBlock=n;this.initHighlighting=o;this.initHighlightingOnLoad=l;this.IR="[a-zA-Z][a-zA-Z0-9_]*";this.UIR="[a-zA-Z_][a-zA-Z0-9_]*";this.NR="\\b\\d+(\\.\\d+)?";this.CNR="\\b(0[xX][a-fA-F0-9]+|(\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?)";this.BNR="\\b(0b[01]+)";this.RSR="!|!=|!==|%|%=|&|&&|&=|\\*|\\*=|\\+|\\+=|,|\\.|-|-=|/|/=|:|;|<|<<|<<=|<=|=|==|===|>|>=|>>|>>=|>>>|>>>=|\\?|\\[|\\{|\\(|\\^|\\^=|\\||\\|=|\\|\\||~";this.ER="(?![\\s\\S])";this.BE={b:"\\\\.",r:0};this.ASM={cN:"string",b:"'",e:"'",i:"\\n",c:[this.BE],r:0};this.QSM={cN:"string",b:'"',e:'"',i:"\\n",c:[this.BE],r:0};this.CLCM={cN:"comment",b:"//",e:"$"};this.CBLCLM={cN:"comment",b:"/\\*",e:"\\*/"};this.HCM={cN:"comment",b:"#",e:"$"};this.NM={cN:"number",b:this.NR,r:0};this.CNM={cN:"number",b:this.CNR,r:0};this.BNM={cN:"number",b:this.BNR,r:0};this.inherit=function(r,s){var p={};for(var q in r){p[q]=r[q]}if(s){for(var q in s){p[q]=s[q]}}return p}}();hljs.LANGUAGES.cpp=function(){var a={keyword:{"false":1,"int":1,"float":1,"while":1,"private":1,"char":1,"catch":1,"export":1,virtual:1,operator:2,sizeof:2,dynamic_cast:2,typedef:2,const_cast:2,"const":1,struct:1,"for":1,static_cast:2,union:1,namespace:1,unsigned:1,"long":1,"throw":1,"volatile":2,"static":1,"protected":1,bool:1,template:1,mutable:1,"if":1,"public":1,friend:2,"do":1,"return":1,"goto":1,auto:1,"void":2,"enum":1,"else":1,"break":1,"new":1,extern:1,using:1,"true":1,"class":1,asm:1,"case":1,typeid:1,"short":1,reinterpret_cast:2,"default":1,"double":1,register:1,explicit:1,signed:1,typename:1,"try":1,"this":1,"switch":1,"continue":1,wchar_t:1,inline:1,"delete":1,alignof:1,char16_t:1,char32_t:1,constexpr:1,decltype:1,noexcept:1,nullptr:1,static_assert:1,thread_local:1,restrict:1,_Bool:1,complex:1},built_in:{std:1,string:1,cin:1,cout:1,cerr:1,clog:1,stringstream:1,istringstream:1,ostringstream:1,auto_ptr:1,deque:1,list:1,queue:1,stack:1,vector:1,map:1,set:1,bitset:1,multiset:1,multimap:1,unordered_set:1,unordered_map:1,unordered_multiset:1,unordered_multimap:1,array:1,shared_ptr:1}};return{dM:{k:a,i:"</",c:[hljs.CLCM,hljs.CBLCLM,hljs.QSM,{cN:"string",b:"'\\\\?.",e:"'",i:"."},{cN:"number",b:"\\b(\\d+(\\.\\d*)?|\\.\\d+)(u|U|l|L|ul|UL|f|F)"},hljs.CNM,{cN:"preprocessor",b:"#",e:"$"},{cN:"stl_container",b:"\\b(deque|list|queue|stack|vector|map|set|bitset|multiset|multimap|unordered_map|unordered_set|unordered_multiset|unordered_multimap|array)\\s*<",e:">",k:a,r:10,c:["self"]}]}}}();hljs.LANGUAGES.r={dM:{c:[hljs.HCM,{cN:"number",b:"\\b0[xX][0-9a-fA-F]+[Li]?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+(?:[eE][+\\-]?\\d*)?L\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+\\.(?!\\d)(?:i\\b)?",e:hljs.IMMEDIATE_RE,r:1},{cN:"number",b:"\\b\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\.\\d+(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"keyword",b:"(?:tryCatch|library|setGeneric|setGroupGeneric)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\.",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\d+(?![\\w.])",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\b(?:function)",e:hljs.IMMEDIATE_RE,r:2},{cN:"keyword",b:"(?:if|in|break|next|repeat|else|for|return|switch|while|try|stop|warning|require|attach|detach|source|setMethod|setClass)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"literal",b:"(?:NA|NA_integer_|NA_real_|NA_character_|NA_complex_)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"literal",b:"(?:NULL|TRUE|FALSE|T|F|Inf|NaN)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"identifier",b:"[a-zA-Z.][a-zA-Z0-9._]*\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"<\\-(?!\\s*\\d)",e:hljs.IMMEDIATE_RE,r:2},{cN:"operator",b:"\\->|<\\-",e:hljs.IMMEDIATE_RE,r:1},{cN:"operator",b:"%%|~",e:hljs.IMMEDIATE_RE},{cN:"operator",b:">=|<=|==|!=|\\|\\||&&|=|\\+|\\-|\\*|/|\\^|>|<|!|&|\\||\\$|:",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"%",e:"%",i:"\\n",r:1},{cN:"identifier",b:"`",e:"`",r:0},{cN:"string",b:'"',e:'"',c:[hljs.BE],r:0},{cN:"string",b:"'",e:"'",c:[hljs.BE],r:0},{cN:"paren",b:"[[({\\])}]",e:hljs.IMMEDIATE_RE,r:0}]}};
+hljs.initHighlightingOnLoad();
+</script>
+
+
+
+
+</head>
+
+<body>
+<h1>The Impact of Transmission Type on Miles Per Gallon and Identification of Moderators</h1>
+
+<h2>Executive Summary</h2>
+
+<p>The objective of this report is to test and quantify the impact of transmission type on miles per gallon.</p>
+
+<p>The reminder is divided into three main parts. First, in part A introduce all measurement variables and their coding. Second, in part B I will address the assigned research questions. Finally, in part C I will perform additional exploratory analyses based on the results of part B.</p>
+
+<h2>Part A. Measurement Variables</h2>
+
+<p>This report uses the following variables:</p>
+
+<ol>
+<li>Miles per gallon (mpg) measured as numeric values.</li>
+<li>Transmission type (am) measured as factors. Automatic transmission is coded as factor 0 and manual transmission is coded as factor 1.</li>
+<li>Weight (wt) measured as numeric value in lb/1000.</li>
+<li>Fross horsepower (hp) measured as numeric value.</li>
+</ol>
+
+<h2>PART B. Deductive Analysis</h2>
+
+<p>To address the assigned research question, this part suggests a hypothesis which then will be tested. The hypothesis to be tested is as follows:</p>
+
+<h4>H1: Transmission type influences required miles per gallon.</h4>
+
+<p>If the hypothesis can be confirmed at alpha=0.05 significiance interval, then the effect shall also be quantified.</p>
+
+<h3>1. Install and load packages</h3>
+
+<p>Step 1 installs and loads the required packages. As stated in the assignment, the only additional package is the package datasets which contains a variety of datasets.</p>
+
+<pre><code class="r">library(datasets)
+</code></pre>
+
+<h3>2. Visualize the Impact and Define and Interpret a Suited Model</h3>
+
+<p>Step 2 ilustrates and defines the regression model. The figure leads to assume that there is a difference between the automatic transmission and the manual transmission (H1). While cars with automatic transmission (factor 0) only drive between ca. 10-25 miles per gallon, cars with manual transmission drive between ca. 15-34 miles per gallon.</p>
+
+<pre><code class="r">plot(as.factor(mtcars$am), as.numeric(mtcars$mpg), xlab = &quot;Transmission Type&quot;, 
+    ylab = &quot;MPG&quot;)
+</code></pre>
+
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfgAAAH4CAMAAACR9g9NAAAAhFBMVEX9/v0AAAAAADkAAGUAOTkAOWUAOY8AZrU5AAA5ADk5AGU5OWU5OY85ZrU5j9plAABlADllAGVlOQBlOY9lZjllZmVltf2POQCPOTmPOWWPZgCPjzmPj2WPtY+P27WP29qP2/21ZgC1Zjm1/v3ajzna/rXa/v39tWX924/9/rX9/tr9/v1hsJKdAAAALHRSTlP/////////////////////////////////////////////////////////AMfWCYwAAAAJcEhZcwAACxIAAAsSAdLdfvwAAAxBSURBVHic7d0Nd9pGFofxyu4aN+tA0u6aZN9qapY3ff/vVyTLCS4KHqG5mjvzf37n9JDY8kiXBxA0xv6phqSfUh8A0iC8KMKLIrwowosivCjCiyK8KMKLIrwowosivCjCiyK8KMKLIrwowosivCjCiyK8KMKLIrwowosivCjCiyK8KMKLIrwowosivCjCiyK8KMKLIrwowosivCjCiyK8KMKLIrwowosivCjCiyK8KMKLIrwowosivCjCiyK8KMKLIrwowosivCjCiyK8KMKLIryoMeEreGYYfsTXwhrhRRFeFOFFEV4U4UURXhThRRFeFOFFEV4U4UUR3tyU/7Yy4Kguf5rwk5n46iK8F4QXRXhRhMcUCC+K8KII7wXneFGEF0V4UYQXRXhMgfCiCC+K8F5wjhdFeFGEF0V4UYTHFAgvivCiCO8F53hRhBdFeFGEF0V4TIHwoggvivBecI4XRXhRhBdFeFGExxQIL4rwogjvBed4UYQXRXhRhBdFeEyB8KIIL4rwXnCOF0V4UbmF3923vzHj9nno0ngrs/CH5WN7ub3bDFy6AHF/20xU7x/75U+/G37/+fnNZfjSBfA7oX147Xt86gP4Ifvw9X7RPrRInuP9TjhB+DE7z53fCZOED3+CkTu/E04Q/vhybr7iod6ZaZ7crY7Vdw88uXNkmpdz2zkv55yZ7uUc93hXJnk515Rfc453hZdzpvxOSHhTfickvCm/ExLelN8JCW/K74SEN+V3QsKb8jsh4U35nZDwpvxOSHhTfickvCm/ExLelN8JCW/K74SEN+V3QsKb8jsh4U35nZDwpvxOSHhTfickvCm/ExLelN8JCW/K74SEN+V3QsKb8jsh4U35nZDwpvxOSHhTfickvCm/ExLelN8JCW/K74SEN+V3QsKb8jsh4U35nZDwpvxOSHhTfickvCm/ExLelN8JCW/K74SEN+V3QsKb8jsh4U35nZDwpvxOSHhTfickvCm/ExLelN8JCW/K74SEN+V3QsKb8jsh4U35nZDwpvxOSHhTfickvCm/ExLelN8JCW/K74SEN+V3QsKb8jsh4U35nZDwpvxOSHhTfickvCm/ExLelN8JCW/K74SEN+V3Qvvw+8/P9X5RVXdnvz7e8dUSi98JJwnftK93H6/Yee78TjhJ+N3D5uWeP3jnufM74QThFze/f23u8Q9nj/V+r5ZY/E44xZO7w7Ka1dvbszu846slFr8T8qzelN8Jk4SvXl3xtXnxO+EE4Xf31c0TT+6csQ9/WD4e/5sT3pdp/gdOXa9mhHdlmnv80frnD4R3ZIJz/H4xby7W56/n/F4tsfidkJdzpvxOSHhTficsInwVVaSDejmymItFVUR4n7tLtMtAhC9tl4EIX9ouAxG+tF0GUgqfgN8JCW/K74SEN+V3QqXwnONPEL60XQYifGm7DET40nYZiPCl7TKQUvgE/E5IeFN+JyS8Kb8TKoXnHH+C8KXtMhDhS9tlIMKXtstAhC9tl4EihV/P6nVV9bwTeuTOc+d3wjjh13ebej1v8kfeee78Thgl/P7TU92E352/S2rkznMX9xu/o3r/2C9/ug3fvR+y532RY5aOLcU53q/3j/3yp5vw3fsi623PjzQbsXRshD/1/rFf/nR7jt9WTflt8/MPBl0twzYfi2f1JyI9qz8sq+FP6gmfEK/jS9tlIKXwCfidME743X1VPVrsPHd+J4z2rH7oa/iwnefO74TRXscfvgx8Sh+086g4x5+IF345/LGe8OkQvrRdBooTftH936CBr+QJn47SyznCn1AKn4DfCQlvyu+EkV7HZ3GOT8DvhJG+A6eq5iY7j4pz/IloD/XH9oPjEz6dqOf4le+HesKfiBZ+VQ3/dxrCpxPtHH/FP84RPiGe1ZvyOyGv4035nZDwpvxOqBSec/wJwpe2y0CEt92lX+8f++VPE75UhBdVTngMQngvfD1AEn4yhM9jd9H5uroIPxlfVxfhJ+Pr6no/fPOOyqr3X+58TYK3xoa/8HNSCO/Z2PAXfjISJTwr5x6fO18PkO+f47t31qU/x+cut/BXLx1b7rczX1fXNeHD/2kwKsLH3F3Qy7nmB+Clf3JH+Ji7C3pyd1jOCZ+bOC/nVjPCZybSy7n1z+c/FosSnkV4Ode+mXJ9/nqO8IP4eoDM6OVc7gifx+6i83V1EX4yvq4uwk/G19VF+FIlDZ/kPSZhRsydh7ThR6xuy++RxUL4XuW/A5PwvQhvt3TQFqkQ3m7poC1SIbzd0kFbpEJ4u6WDtkjF75HFQvhefo8sFsL38ntksRC+F+d4u6WDtkiF8HZLB22RCuHtlg7aIhXC2y0dtEUqhLdbOmiLVPweWSyE7+X3yGIhfC+/RxYL4XtxjrdbOmiLVAhvt3TQFqkQ3m7poC1SIbzd0kFbpEJ4u6WDtkjF75HFQvhefo8sFsL38ntksRC+F+d4u6Vr3kL19spwtTvCT4bwLoyY+0pS4UesbovwdksHbZGK3yOLhfC9/B5ZLITv5ffIYiF8L87xdksHbZEK4e2WDtoiFcLbLR20RSqEt1s6aItUCG+3dNAWqfg9slgI38vvkcVC+F5+jywWwvfiHG+3dNAWqRDebumgLVIhvN3SQVukQni7pYO2SIXwdksHbZGK3yOLhfC9/B5ZLITv5ffIYiF8L87xdksHbZEK4e2WDtoiFcLbLR20RSqEt1s6aItUCG+3dNAWqfg9sljGhm9+b/x+UVV3m6FLB22Rit8jiyVC+KZ9vfs4dOmgLVLxe2SxRAi/e9i83POHLR20RSqc49/7+v3i5vevzT3+4eyxnvCedzn+yd1hWc3q7e3ZHZ7wrnfJs/pehL9myeAfLqAR3udPbEh7j/drxNx5SBo+qvJbRTX+WX13Fzl/dkd4z0bf4w/L+XVLI6nxD/X7T09XLY2kyjnHY5BywnM7G4TwoggvivCiCC+qnPAYhPCiCC+qnPDczgYhvCjCiyK8KMKLKic8BiG8KMKLKic8t7NBCC+K8KIIL4rwosoJj0EIL4rwosoJz+1sEMKLIrwowosivKhywmMQwosivKhywnM7G4TwoggvivCiCC+qnPAYhPCiCC+qnPDczgYhvCjCiyK8KMKLKic8BiG8KMKLKic8t7NBCC+K8KIIL4rwosoJj0EIL4rwosoJz+1sEMKLIrwowosaHX53/4NfHx+tRBVVpIPK3tjwh+Vje7m92wxcGkmNDb///PzmMnxpJMU9XtToc/x+YX2Oh4VyntVjEIPwPIHOAfd4UYQXNfrl3KJ7XD9/dkd4z0bf4w/L+XVLI6nxD/X7T09XLY2kOMeLIrwoy/DwzC78xHJ/gPF1/ISfjK/jJ/xkfB0/4Sfj6/gJPxlfx0/4yfg6fsJPxtfxZxQeMRFeFOFFEV4U4UURXhThRRFeFOFFEV5ULuH3i+r8XZtZ2X04f/dhQpmEb96zu56lPooxtn1vO00ok/DNu/Od3WWGWd3819fhZxJ+97D58ff358HZ7TaT8M2PZSB8TJmE5x4fWybhsz/HE/46zTs3835WT/jr8Do+slzCIzLCiyK8KMKLIrwowosivCjCiyK8KMKLIrwowosivCjCiyK8KMKLIrwowosivCjCiyoy/GHZ/tzuoO/OPPseyJ5vihyyXi6KDF/H/55WZ98jO17R4Xd///X2ufk16I/17uFfzUW9bX+d1uHLf6pqfvzzvN3w5YPdRfOB/aL9U/c139ZbNev8//O/q5unutsmW2WHv39s33h1/Mvuft68Aa95R856dnzsnh0/OWs/8eG5+2B30Xzlqt24+5rv622Pf5/vF3eb7W27Tc5v8Sg7/IdvvwK9+WPT+OX9d4cvT+1/x79+/2B30d0SXj71bYn2cv/b5o+n/eKx+dpm655frZ4NgfCr5hH8NeLxgf/m6S/huw92Fy+PAs2nz8Ifvvzvt017+1g9tr+I8Sbft3EWH765g3Ytu4jHR++/hH/5YHdx4R5fr/85bx8Ymnt8xvf2RvHh2/9+eY3Y9D0L332wuzg5x5+FPy50vCXN2pvJ6vsTgBwVH75eV9Xffn18jbjqntW/uce/fLC7OHlWfxb+8LV5KPjH67P6jB/piw1vY/fxwm9czQvhB1i393TCI2OEF0V4UYQXRXhRhBdFeFGEF0V4UYQXRXhRhBdFeFGEF0V4UYQX9SdNrckVQShBTwAAAABJRU5ErkJggg==" alt="plot of chunk unnamed-chunk-3"/> </p>
+
+<p>The defined model (mod1) reflects the linear regression between the transmission type (am) and the required miles per gallon (mpg). The coefficients indicate that the mean mpg for automatic transmission is 17.147 mpg and that the mean mpg for manual transmission is 17.147+7.245=24.392 mpg. That is, the mean difference between the automatic and the manual transmission is 7.245 mpg. The p-value which for testing the significance of this difference is 0.000285 and thus is smaller than 0.05. Therefore, we can reject H0 (which would assume that the means were equal) and confirm H1 at the previously set significance interval.</p>
+
+<pre><code class="r">mod1 &lt;- lm(mpg ~ factor(am), data = mtcars)
+summary(mod1)$coefficients
+</code></pre>
+
+<pre><code>##             Estimate Std. Error t value  Pr(&gt;|t|)
+## (Intercept)   17.147      1.125  15.247 1.134e-15
+## factor(am)1    7.245      1.764   4.106 2.850e-04
+</code></pre>
+
+<h3>3. Quantify the Uncertainty</h3>
+
+<p>This step quantifies the uncertainty in terms of a 95% confidence interval. The result shows that with 95% confidence, a switch from automatic to manual transmission results in a 3.641 to 10.848 increase in miles per gallon.</p>
+
+<pre><code class="r">sumCoef &lt;- summary(mod1)$coefficients
+sumCoef[2, 1] + c(-1, 1) * qt(0.975, df = mod1$df) * sumCoef[2, 2]
+</code></pre>
+
+<pre><code>## [1]  3.642 10.848
+</code></pre>
+
+<h2>Part C: Further Exploratory Analysis to Adjust the Model</h2>
+
+<p>This part does some additional exploratory data analysis. In particular, it examines the following hypotheses:</p>
+
+<h4>H2a: Weight influences miles per gallon.</h4>
+
+<h4>H2b: Weight moderates the impact of transmission type on required miles per gallon.</h4>
+
+<h4>H3a: Horsepower influences miles per gallon.</h4>
+
+<h4>H3b: Horsepower moderates the impact of transmission type on required miles per gallon.</h4>
+
+<p>Similar to H1, the additional hypotheses shall also be tested at alpha=0.05. The test shall be a Chi-Square test for differences of means.</p>
+
+<h3>4. Test of Model Adjustment</h3>
+
+<p>The following model reflects and tests the hypothesized moderating effects. Resulting p-values indicate that three additional hypotheses (i.e., H2a, H2b, H3a) can be confirmed.</p>
+
+<pre><code class="r">mod2 &lt;- lm(mpg ~ factor(am) + hp + wt + factor(am) * hp + factor(am) * wt, data = mtcars)
+anova(mod2, test = &quot;Chisq&quot;)
+</code></pre>
+
+<pre><code>## Analysis of Variance Table
+## 
+## Response: mpg
+##               Df Sum Sq Mean Sq F value  Pr(&gt;F)    
+## factor(am)     1    405     405   77.51 2.8e-09 ***
+## hp             1    475     475   90.96 5.6e-10 ***
+## wt             1     65      65   12.46  0.0016 ** 
+## factor(am):hp  1      4       4    0.74  0.3973    
+## factor(am):wt  1     41      41    7.75  0.0099 ** 
+## Residuals     26    136       5                    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+</code></pre>
+
+<h3>5. Perform Residual Diagnostics and Draw Residuals Plot</h3>
+
+<p>An analyses of residual is performed on mod1 and mod2 to identify the better suited model. A summary indicates that residuals of mod2 are smaller. Therefore mod2 is selected as the better suited model.</p>
+
+<pre><code class="r">e1 &lt;- resid(mod1)
+e2 &lt;- resid(mod2)
+df &lt;- data.frame(e1, e2)
+summary(df)
+</code></pre>
+
+<pre><code>##        e1               e2        
+##  Min.   :-9.392   Min.   :-2.987  
+##  1st Qu.:-3.092   1st Qu.:-1.447  
+##  Median :-0.297   Median :-0.535  
+##  Mean   : 0.000   Mean   : 0.000  
+##  3rd Qu.: 3.244   3rd Qu.: 1.261  
+##  Max.   : 9.508   Max.   : 5.599
+</code></pre>
+
+<p>The following figure draws a residual plot of mod2. For comparison, a residual plot of mod3 is shown in the appendix.</p>
+
+<pre><code class="r">plot(e2, ylab = &quot;Residual&quot;, main = &quot;Residuals for Adjusted Model (mod2)&quot;)
+abline(h = 0)
+</code></pre>
+
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfgAAAH4CAMAAACR9g9NAAAAkFBMVEX9/v0AAAAAADkAAGUAOTkAOWUAOY8AZo8AZrU5AAA5ADk5AGU5OQA5OY85ZmU5j485j9plAABlADllAGVlOQBlZjllZmVlj49ltbVltf2POQCPOTmPOWWPZgCPtY+P27WP2/21ZgC124+1/rW1/v3ajzna24/a/rXa/tra/v39tWX924/929r9/rX9/tr9/v3hQInyAAAAMHRSTlP//////////////////////////////////////////////////////////////wBipdB4AAAACXBIWXMAAAsSAAALEgHS3X78AAANWElEQVR4nO2dDXviuBVG12SbQtPpwqQ7XbLtFnfi7QYK/P9/V0n+AAIktuQP2e85z+wkC76S0bF0ZdlmfjiCJD8MvQMwDIgXBfGiIF4UxIuCeFEQLwriRUG8KIgXBfGiIF4UxIuCeFEQLwriRUG8KIgXBfGiIF4UxIuCeFEQLwriRUG8KNGI368Sy8PrrbeKV/erx7f775bsFslsc6uKw0syP0U9vl1F5qTrqxryak18sjQ/syR5vx8Xe3YqN7u9I+cxqfvMu8Xy/oadEJv4qya93KaO+DR5b67AHBHVpjeLuhN+Ej/7q/nN+q8nfr+aH+/jYtLiaE9vHoMdEpF4+9Hzv02Xcq1vTNlGcS/a5v7FNNXhxb1i2mxrtjI9yr1bbHnMu6X1YstYOlk/lwNAlnxzxZZF2chTcXkRLnx+2oVy27zo2c9u678t7AtFDWebFEGV+Mz83zb584spN8uLex+zX8025ne7Wc9dPkbxrheYhsgHgVJQMR5Ups7fLX8/VuLzMubVceDeefjPYl5scSr3srg/cvHlLlTb5gXMfltYR/9YlH21rMFtctrv8hg0R9w2Kak+2VnMzpXkDt+PhroOiEh8UrSKawwrxP1yzI+G3cK0W3Yuvnwnf/es2exYvVu4xnTdqRxud4u5C66KuhBfFZGHV7tQbGvfMSL/vVoeM3P82O2LGqpNqqBSfDEu2VKSdb7p+xi72TYp4npra0ts4tfHso/MNu6lYqjfWn/7i6HeheTNXG7pSN3IaXWbodb1uhw78Gble/v3Q31VRB5e7EK1rS3AlpWaMeHxd6O4qqHa5Gy/811xR4J9O6+oKO0i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" alt="plot of chunk unnamed-chunk-8"/> </p>
+
+<h3>6. Select/Built a Suited Model and Explain Selection Criteria</h3>
+
+<p>Since residuals are smaller for mod2, mod2 is selected. For detailes see step 5.</p>
+
+<h2>Appendix</h2>
+
+<pre><code class="r">plot(e1, ylab = &quot;Residual&quot;, main = &quot;Residuals for Unadjusted Model (mod1)&quot;)
+abline(h = 0)
+</code></pre>
+
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfgAAAH4CAMAAACR9g9NAAAAmVBMVEX9/v0AAAAAADkAAGUAOWUAOY8AZo8AZrU5AAA5ADk5AGU5OQA5OTk5OY85ZmU5ZrU5j485j9plAABlADllAGVlOQBlZjllZmVlj49ltbVltf2POQCPOTmPOWWPZgCPtY+P27WP29qP2/21ZgC1tWW124+1/rW1/v3ajzna24/a/rXa/tra/v39tWX924/929r9/rX9/tr9/v3KJ0jfAAAAM3RSTlP//////////////////////////////////////////////////////////////////wBxnr2OAAAACXBIWXMAAAsSAAALEgHS3X78AAAN0ElEQVR4nO2dC5vithlGY6ZT6LbTBHaatMNukwztQpKBgv//j6slX7gZsCWDZL/nPJthAtYnW8fSJ9+Y71KQ5LvQKwBhQLwoiBcF8aIgXhTEi4J4URAvCuJFQbwoiBcF8aIgXhTEi4J4URAvCuJFQbwoiBcF8aIgXhTEi4J4URAvCuJFCS1+O0sMT8u6j4p3t7Pnj8uflmwmyej9UpTdvK6GMvhZrJzFW82y5nU3T5Jp9rpKktM1O1rXfdxV3aqdlNlMxubH9PKCXRKJ+LMGPF6mifhFcurpYLnr4us/OQ+4Fz/6a/ab8d9M/HY2rq/joMwiScxCi0sr2jHhxZsNzX9mHci2ddZ3zRBg3zSN+6+sYaw520LrbKms/9hPiyXTvBMaCybG1Kr5MR8A9uKz//6TL16EqIKbZfYV5EFtwPF+pcpl88pGP9ql/z4xbxR1HixSFKrEr7L/Wyd/nmdxV3m40zLZ69+s+HXymC4fkfiF7frTYhAodRTjQeXl8NPy97QSn8cYV/vBsfjiw7JYFfxIfPHpH7n4cqWqZVNb2ejniVH5TyP+qE67yH5Lyr0y283WSUm1rQdldl/e11b85RGoW8KLT4o22Ezs6Pm0tL+kubLNJGul1aH48pP804NGMiPzZmLHgtF71qDjsoID8dOs+WuCH4mvguYBq5UqljWfZCJ/mU3T1dN/J2b5os5qkapQKb4YqUyU5C1f9LRMavr6OL2WlLolEvFvadkjRu/2rWKot42xPRrqbZG8UcslLQs7nJq2ywZW28eKCvbibWvvQ1TBz3u8KZMHLFaqWtbENJEW2Zjw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" alt="plot of chunk unnamed-chunk-9"/> </p>
+
+</body>
+
+</html>
+

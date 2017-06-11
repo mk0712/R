@@ -1,0 +1,209 @@
+---
+title: "Bayesian modeling and prediction for movies"
+output: 
+  html_document: 
+    fig_height: 4
+    highlight: pygments
+    theme: spacelab
+---
+
+## Setup
+
+### Install packages
+
+#### Install statsr in in R 3.3
+```{r install-statsrInR3.3, message = FALSE}
+#install.packages("devtools")
+#library(devtools)
+#find_rtools()
+#install_github("rstudio/htmltools")
+#install.packages("httpuv")
+#library(httpuv)
+#install.packages("xtable")
+#library(xtable)
+#install_github("StatsWithR/statsr")
+```
+
+#### Install everything else:
+```{r install-packagesExceptStatsr, message = FALSE}
+#install.packages( "ggplot2" )
+#install.packages("dplyr")
+#install.packages("tidyr")
+#install.packages("BAS")
+```
+
+### Load packages
+
+```{r load-packages, message = FALSE}
+library(ggplot2)
+library(dplyr)
+library(statsr)
+library(tidyr)
+library(BAS)
+```
+
+### Load data
+
+Load data into variable "movies":
+
+```{r load-data}
+setwd('R:/MOOC/Duke Uni - Bayesian Statistics/week_5/_Peer-Review_project')
+load("movies.Rdata")
+```
+
+
+* * *
+
+## Part 1: Data
+
+My boss has just acquired data about how much audiences and critics like movies as well as numerous other variables about 651 movies. In particular, these 651 movies are randomly sampled from movie data sets provides by Rotten Tomatoes and IMDB (with a limitation on movies produced and released before 2016).
+
+Generalizability:
+The results of the analysis on-hand should be generalizable from the movie sample to the entire movie data sets because 651 movies were randomly selected. 
+
+Causality:
+However, regarding causality, this data analysis may have limitations. Since it is a retrospective (!) cohort sample of participants who rate movies, major biases may occur (e.g., selection bias, information bias). In particular, there is no random assignment of participants to movies. Instead, there is a selection bias because participants (probably) only rate movies that they were interested in and that they watched (--> selection bias). Thus, we need to be careful when trying to infer causality and further studies (e.g., prospective randomized experiments) may need to be conducted. 
+
+
+* * *
+
+## Part 2: Data manipulation
+
+2.1
+Create new variable based on title_type: New variable should be called feature_film with levels yes (movies that are feature films) and no (2 pt)
+
+
+```{r}
+movies <- mutate(movies, feature_film=as.factor(ifelse(title_type=='Feature Film', 'yes', 'no')))
+```
+
+2.2
+Create new variable based on genre: New variable should be called drama with levels yes (movies that are dramas) and no (2 pt)
+
+```{r}
+movies <- mutate(movies, drama=as.factor(ifelse(genre=='Drama', 'yes', 'no')))
+```
+
+2.3
+Create new variable based on mpaa_rating: New variable should be called mpaa_rating_R with levels yes (movies that are R rated) and no (2 pt)
+
+```{r}
+movies <- mutate(movies, mpaa_rating_R=as.factor(ifelse(mpaa_rating=='R', 'yes', 'no')))
+```
+
+2.4
+Create two new variables based on thtr_rel_month:
+
+2.4.1
+New variable called oscar_season with levels yes (if movie is released in November, October, or December) and no (2 pt)
+
+```{r}
+movies <- mutate(movies, oscar_season=as.factor(ifelse(thtr_rel_month %in% c(10, 11, 12), 'yes', 'no')))
+```
+
+2.4.2
+New variable called summer_season with levels yes (if movie is released in May, June, July, or August) and no (2 pt)
+
+```{r}
+movies <- mutate(movies, summer_season=as.factor(ifelse(thtr_rel_month %in% c(5, 6, 7, 8), 'yes', 'no')))
+```
+
+* * *
+
+## Part 3: Exploratory data analysis
+
+Conduct exploratory data analysis of the relationship between audience_score and the new variables constructed in the previous part
+
+The exploratory data analysis (EDA) analyzes the five added features (1) feature_film, (2) drama, (3) mpaa_rating, (4) oscar_season, and (5) summer_season. The (single) outcome is audience_score. In the movies dataset we added these features at then end (i.e., the columns 33 to 37). TThus, we can create a dataset called "added_features" based on movies that combines the newly added features.
+
+```{r}
+movies_with_added_features <- gather(movies, 'feature', 'value', 33:37)
+```
+
+Now we can easily visualize the effects of all five features on the outcome within one single plot. 
+
+```{r}
+ggplot(movies_with_added_features, aes(fill=value, y=audience_score, x=feature)) + geom_boxplot()
+```
+The visualization indicates that the effects of mpaa_rating_R, oscar_season, and summer_season are relatively smalle. Only drama and feature_film seem to be influencing audience_score. In particular, dramas seem to be increasing the audience score and feature films seem to be decreasing the audience score. This is also supported by the statistics:
+
+
+```{r}
+movies_with_added_features %>% group_by(feature, value) %>% summarise( min=min(audience_score), max=max(audience_score), mean=mean(audience_score), median=median(audience_score), IQR=IQR(audience_score))
+```
+
+* * *
+
+## Part 4: Modeling
+
+Develop a Bayesian regression model to predict audience_score from the following explanatory
+variables. Note that some of these variables are in the original dataset provided, and others are new
+variables you constructed earlier:
+feature_film
+drama
+runtime
+mpaa_rating_R
+thtr_rel_year
+oscar_season
+summer_season
+imdb_rating
+imdb_num_votes
+critics_score
+best_pic_nom
+best_pic_win
+best_actor_win
+best_actress_win
+best_dir_win
+top200_box
+
+We start by copmuting several models and storing them in the variable "fittedModels". After that, we have a look at the computed models. 
+
+```{r}
+fittedModels <- bas.lm(data=na.omit(movies), audience_score ~ feature_film + drama + runtime + mpaa_rating_R + thtr_rel_year + oscar_season + summer_season + imdb_rating + imdb_num_votes + critics_score + best_pic_nom + best_pic_win + best_actor_win + best_actress_win + best_dir_win + top200_box, prior = 'BIC', modelprior = uniform())
+
+summary(fittedModels)
+```
+
+We can see that the first model uses the features "runtime", "imdb_rating" and "critics_score" for predicting the outcome audience_score. Therefore, we select and compute a so-called "focusModel" based on these three features and have a look at the model:
+
+```{r}
+focusModel <- lm(data=na.omit(movies), audience_score ~ runtime + imdb_rating + critics_score)
+
+summary(focusModel)
+```
+
+The summary of the "focusModel" provides us with detailed coefficients. In particular, for each unit of runtime [--> here: minute], the predicted audience_score would decrease by 0.05791. Furthermore, for each point in the imdb_rating, the predicted audience_score would increase by 14.95043. Finally, for each point in the critics_score, the predicted audience_score would increase by 0.07531. Furthermore, the analysis computed statistical significance levels and tested the effects of our features. Results indicate that the effects of all three features are statistically significant at p<0.01 (runtime) or even p<0.001 (imdb_rating, critics_score).
+
+
+* * *
+
+## Part 5: Prediction
+
+Task:
+Pick a movie from 2016 (a new movie that is not in the sample) and do a prediction for this movie using  the model you developed and the predict function in R.
+
+I pick the movie "The Magnificent Seven". It has a runtime of 132 minutes, an IMDB-Rating of 7.1, and a RottenTomatoes Critics Score of 63.
+
+The movie stats can be viewed here: 
+http://www.imdb.com/title/tt2404435/
+https://www.rottentomatoes.com/m/the_magnificent_seven_2016
+
+```{r}
+movie_TheMagnificentSeven <- data.frame(runtime=132, imdb_rating=7.1, critics_score=63)
+```
+
+Now, we can use the developed "focusModel" to predict the audience_score of the movie "The Magnificent Seven":
+
+
+```{r}
+predict(focusModel, movie_TheMagnificentSeven)
+```
+The predicted audience score is 70.34071. However, the actual audience score on Rotten Tomatoes is 78. 
+
+* * *
+
+## Part 6: Conclusion
+
+To conclude, this data analysis showed that only two of five expected, additionally computed features influenced the outcome audience_score. Furthermore, this study found that, overall, the three features "runtime", "imdb_rating" and "critics_score" are best suited for predicting audience_score. 
+
+To illustrate this prediction, I used the model (which was based on data before 2016) to predict the audience_score of the movie "The Magnificent Seven" which was only released in 2016. I noticed that the predicted audience_score of 70.34071 is lower than the actual  audience_score of 78. Intuitively, one main reason for this difference may be selection bias. Since the movies was only released 3 weeks ago, I assume that only people who are already highly interested in the movie went to the cinemas yet. Over time, it is likely that this bias will decrease because more people who are not already favoring the movie, will be watching it. 
